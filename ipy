@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Bash script to launch ipy docker
+# default workspace volume is mapped to current directory
+
+
+workdir=$(pwd)
+
+ports=""
+volumes="-v"
+flags="-it --rm"
+
+if [ $# -gt 0 ];
+then
+    # function for parsing arguments
+    while [[ $# > 0 ]] ; do
+    	case "$1" in
+    	-e)
+		# ENV FILE
+    		flags="$flags --env-file $2"
+    		shift
+    		;;
+    	-p)
+		# PORT MAPPING
+    		echo "port mapping $2"
+    		ports="$ports -p $2"
+    		;;
+	-v)	
+		# VOLUME 
+		# split first part
+		hostpath=${2%:*}
+		#expand relative path:
+		abspath=$(cd $hostpath 2> /dev/null && pwd -P)
+		# split second part
+		conpath=${2#*:}
+		volumes="-v $abspath:$conpath $volumes"
+		;;
+	esac
+    	shift
+    done
+fi
+
+
+tput setaf 3 # set colour
+echo "Starting iPython docker environment in folder:"
+echo $workdir
+echo "Docker command:"
+echo "docker run $ports $flags $volumes <pwd>:/workspace melodient/ipy"
+tput op
+
+docker run $ports $flags $volumes $workdir:/workspace melodient/ipy
