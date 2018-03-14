@@ -4,6 +4,19 @@
 # default workspace volume is mapped to current directory
 
 
+function printusage(){
+	echo "
+usage: ipy [-p PORTS] [-v VOLUMES] [-e environment_file]
+	
+	PORTS   = host:container
+	
+	VOLUMES = host:container
+
+	Present working directory mapped as volume 'workspace' by default
+	"
+	exit 0
+}
+
 workdir=$(pwd)
 
 ports=""
@@ -34,6 +47,12 @@ then
 		# split second part
 		conpath=${2#*:}
 		volumes="-v $abspath:$conpath $volumes"
+		;;
+	-h)
+		printusage
+		;;
+	--help)
+		printusage
 		;;
 	esac
     	shift
